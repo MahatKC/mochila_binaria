@@ -1,5 +1,5 @@
 import time
-
+import numpy as np
 
 def mochila_gulosa(tamanho_mochila, beneficios, custos):
 
@@ -19,19 +19,43 @@ def mochila_gulosa(tamanho_mochila, beneficios, custos):
 
     while(espaco_disponivel >= 0 and i < len(elementos_ordenados)):
         if(elementos_ordenados[i][2] <= espaco_disponivel):
-            items.append([elementos_ordenados[i][0], elementos_ordenados[i][1], elementos_ordenados[i][2]])
+            items.append(elementos_ordenados[i][0]+1)
             valor_total += elementos_ordenados[i][1]
             espaco_disponivel -= elementos_ordenados[i][2]
         i += 1
         
     return valor_total, items
 
-#def mochila_dinamica(tamanho_mochila, beneficios, custos):
-
-    #return valor_total, items
+def mochila_dinamica(tamanho_mochila, beneficios, custos):
+    matriz = np.zeros((len(beneficios)+1, tamanho_mochila+1))
+    # criar arquivo de exemplo com o exercicio do drive
+    for i in range(1, len(beneficios)+1):
+        for j in range(1, tamanho_mochila+1):
+            if custos[i-1] > j: # nao cabe na mochila
+                matriz[i][j] = matriz[i-1][j]
+            elif matriz[i][j-1] <= matriz[i-1][j-custos[i-1]]+beneficios[i-1]:
+                matriz[i][j] = max(matriz[i-1][j-custos[i-1]]+beneficios[i-1], matriz[i-1][j])
+            else:
+                matriz[i][j] = max(matriz[i][j-1], matriz[i-1][j])
+                    
+    valor_total = matriz[-1][-1]
+    i = np.shape(matriz)[0]-1
+    j = np.shape(matriz)[1]-1
+    items = []
+    
+    while(matriz[i][j] != 0):
+        if matriz[i-1][j] == matriz[i][j]:
+            i -= 1
+        else:
+            items.append(i)
+            j -= custos[i-1]
+            i -= 1
+    
+    return valor_total, items[::-1]
 
 #tamanhos_conjuntos = [10, 50, 100, 200, 300, 500, 750, 1000, 1250, 1500, 2000, 2500, 3000, 4000, 5000]
-tamanhos_conjuntos = [10]
+tamanhos_conjuntos = [10, 50, 100, 200, 300, 500, 750]
+#tamanhos_conjuntos = [30]
 
 for tamanho_conjunto in tamanhos_conjuntos:
     arquivo = open("Entradas/Mochila"+str(tamanho_conjunto)+".txt", "r")
@@ -49,14 +73,16 @@ for tamanho_conjunto in tamanhos_conjuntos:
     t0 = time.time()
     valor_total, items = mochila_gulosa(tamanho_mochila, beneficios, custos)
     t1 = time.time()
-    print(f"Gulosa: {t1-t0} segundos\nBenefício: {valor_total}")
-    print(f"Items: {items}")
+    print(f"Gulosa: {t1-t0} segundos\nBenefício: {valor_total}", end='\n\n')
+    #print(f"Items: {items}")
+    
 
-    #print("-"*10)
-
-    #t0 = time.time()
-    #valor_total, items = mochila_dinamica(tamanho_mochila, beneficios, custos)
-    #t1 = time.time()
-    #print(f"Dinâmica: {t1-t0} segundos\nBenefício: {valor_total}")
+    t0 = time.time()
+    valor_total, items = mochila_dinamica(tamanho_mochila, beneficios, custos)
+    t1 = time.time()
+    print(f"Dinâmica: {t1-t0} segundos\nBenefício: {int(valor_total)}")
+    #print(f"Items: {items}")
+    
+    print("-"*10)
 
 
