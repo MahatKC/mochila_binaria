@@ -1,12 +1,15 @@
 import time
-import numpy as np
+#import numpy as np
 
 def mochila_gulosa(tamanho_mochila, beneficios, custos):
 
     custos_beneficios = []
 
     for i in range(len(beneficios)):
-        custos_beneficios.append(beneficios[i]/custos[i])
+        if custos[i] == 0: 
+            custos_beneficios.append(float('inf'))
+        else:
+            custos_beneficios.append(beneficios[i]/custos[i])
     
     elementos = zip(range(len(beneficios)), beneficios, custos, custos_beneficios)
 
@@ -27,8 +30,13 @@ def mochila_gulosa(tamanho_mochila, beneficios, custos):
     return valor_total, items
 
 def mochila_dinamica(tamanho_mochila, beneficios, custos):
-    matriz = np.zeros((len(beneficios)+1, tamanho_mochila+1))
-    # criar arquivo de exemplo com o exercicio do drive
+    matriz = []
+    for i in range(len(beneficios)+1):
+        temp = []
+        for j in range(tamanho_mochila+1):
+            temp.append(0)
+        matriz.append(temp)
+        
     for i in range(1, len(beneficios)+1):
         for j in range(1, tamanho_mochila+1):
             if custos[i-1] > j: # nao cabe na mochila
@@ -39,8 +47,8 @@ def mochila_dinamica(tamanho_mochila, beneficios, custos):
                 matriz[i][j] = max(matriz[i][j-1], matriz[i-1][j])
                     
     valor_total = matriz[-1][-1]
-    i = np.shape(matriz)[0]-1
-    j = np.shape(matriz)[1]-1
+    i = len(beneficios)
+    j = tamanho_mochila
     items = []
     
     while(matriz[i][j] != 0):
@@ -54,8 +62,8 @@ def mochila_dinamica(tamanho_mochila, beneficios, custos):
     return valor_total, items[::-1]
 
 #tamanhos_conjuntos = [10, 50, 100, 200, 300, 500, 750, 1000, 1250, 1500, 2000, 2500, 3000, 4000, 5000]
-tamanhos_conjuntos = [10, 50, 100, 200, 300, 500, 750]
-#tamanhos_conjuntos = [30]
+#tamanhos_conjuntos = [10, 50, 100, 200, 300, 500, 750]
+tamanhos_conjuntos = [1000]
 
 for tamanho_conjunto in tamanhos_conjuntos:
     arquivo = open("Entradas/Mochila"+str(tamanho_conjunto)+".txt", "r")
