@@ -1,5 +1,6 @@
 import time
-#import numpy as np
+import pandas as pd
+pd.set_option("display.precision", 6)
 
 def mochila_gulosa(tamanho_mochila, beneficios, custos):
 
@@ -61,11 +62,7 @@ def mochila_dinamica(tamanho_mochila, beneficios, custos):
     
     return valor_total, items[::-1]
 
-#tamanhos_conjuntos = [10, 50, 100, 200, 300, 500, 750, 1000, 1250, 1500, 2000, 2500, 3000, 4000, 5000]
-#tamanhos_conjuntos = [10, 50, 100, 200, 300, 500, 750]
-tamanhos_conjuntos = [1000]
-
-for tamanho_conjunto in tamanhos_conjuntos:
+def abrir_arquivo(tamanho_conjunto):
     arquivo = open("Entradas/Mochila"+str(tamanho_conjunto)+".txt", "r")
     linha_index = 0
     for linha in arquivo:
@@ -77,19 +74,48 @@ for tamanho_conjunto in tamanhos_conjuntos:
             linha_index += 1
         else:
             custos = [int(custo) for custo in linha.split("\t")[:-1]]
-    
-    t0 = time.time()
-    valor_total, items = mochila_gulosa(tamanho_mochila, beneficios, custos)
-    t1 = time.time()
-    print(f"Gulosa: {t1-t0} segundos\nBenefício: {valor_total}", end='\n\n')
-    #print(f"Items: {items}")
-    
 
-    t0 = time.time()
-    valor_total, items = mochila_dinamica(tamanho_mochila, beneficios, custos)
-    t1 = time.time()
-    print(f"Dinâmica: {t1-t0} segundos\nBenefício: {int(valor_total)}")
-    #print(f"Items: {items}")
+    return tamanho_mochila, beneficios, custos
+
+tamanhos_conjuntos = [10, 50, 100, 200, 300, 500, 750, 1000, 1250, 1500, 2000, 2500, 3000, 4000, 5000]
+
+for tamanho_conjunto in tamanhos_conjuntos:
+    print(f"Tamanho {tamanho_conjunto}")
+    tamanho_mochila, beneficios, custos = abrir_arquivo(tamanho_conjunto)
+    tempo_gulosa = 0
+    tempo_dinamica = 0
+
+    for i in range(3):
+        print("-"*5+f"i: {i}"+"-"*5)
+        t0g = time.time()
+        valor_gulosa, items = mochila_gulosa(tamanho_mochila, beneficios, custos)
+        t1g = time.time()
+        tempo_gulosa += t1g-t0g
+        print(f"Gulosa: {t1g-t0g} segundos\nBenefício: {valor_gulosa}", end='\n\n')
+        #print(f"Items: {items}")
+        
+        t0d = time.time()
+        valor_dinamica, items = mochila_dinamica(tamanho_mochila, beneficios, custos)
+        t1d = time.time()
+        tempo_dinamica = t1d-t0d
+        print(f"Dinâmica: {t1d-t0d} segundos\nBenefício: {int(valor_dinamica)}")
+        #print(f"Items: {items}")
+
+    results = pd.DataFrame({
+            'Tamanho': [tamanho_conjunto],
+            'Media Tempo Gulosa': [(tempo_gulosa/3)],
+            'Beneficio Gulosa': [valor_gulosa],
+            'Tamanho Tabela (MxN):': [(tamanho_conjunto+1)*(tamanho_mochila+1)],
+            'Media Tempo Dinamica': [tempo_dinamica/3],
+            'Media Tempo Dinamica/Milhao celulas': [(tempo_dinamica/3)/(((tamanho_conjunto+1)*(tamanho_mochila+1))/1000000)],
+            'Beneficio Dinamica': [valor_dinamica]
+        })
+    if tamanho_conjunto==10:
+        results.to_csv("Resultados.csv",index=False)
+    else:
+        file_df = pd.read_csv("Resultados.csv")
+        file_df = pd.concat([file_df,results], ignore_index=True)
+        file_df.to_csv("Resultados.csv",index=False)
     
     print("-"*10)
 
