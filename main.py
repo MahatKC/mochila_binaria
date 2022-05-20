@@ -86,15 +86,16 @@ if __name__=="__main__":
         tempo_gulosa = 0
         tempo_dinamica = 0
 
-        for i in range(3):
-            print("-"*5+f"i: {i}"+"-"*5)
+        for i in range(100):
             t0g = time.time()
             valor_gulosa, items = mochila_gulosa(tamanho_mochila, beneficios, custos)
             t1g = time.time()
             tempo_gulosa += t1g-t0g
-            print(f"Gulosa: {t1g-t0g} segundos\nBenefício: {valor_gulosa}", end='\n\n')
-            #print(f"Items: {items}")
-            
+        print(f"Gulosa: {t1g-t0g} segundos\nBenefício: {valor_gulosa}", end='\n\n')
+        #print(f"Items: {items}")
+
+        for i in range(3):
+            print(f"Dinamica iteração {i}")  
             t0d = time.time()
             valor_dinamica, items = mochila_dinamica(tamanho_mochila, beneficios, custos)
             t1d = time.time()
@@ -104,7 +105,7 @@ if __name__=="__main__":
 
         results = pd.DataFrame({
                 'Tamanho': [tamanho_conjunto],
-                'Media Tempo Gulosa': [(tempo_gulosa/3)],
+                'Media Tempo Gulosa': [(tempo_gulosa/100)],
                 'Beneficio Gulosa': [valor_gulosa],
                 'Tamanho Tabela (MxN):': [(tamanho_conjunto+1)*(tamanho_mochila+1)],
                 'Media Tempo Dinamica': [tempo_dinamica/3],
@@ -112,11 +113,11 @@ if __name__=="__main__":
                 'Beneficio Dinamica': [valor_dinamica]
             })
         if tamanho_conjunto==10:
-            results.to_csv("Resultados.csv",index=False)
+            results.to_csv("Reultados.csv",index=False)
         else:
-            file_df = pd.read_csv("Resultados.csv")
+            file_df = pd.read_csv("Reultados.csv")
             file_df = pd.concat([file_df,results], ignore_index=True)
-            file_df.to_csv("Resultados.csv",index=False)
+            file_df.to_csv("Reultados.csv",index=False)
         
         print("-"*10)
 
